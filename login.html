@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login | login.sontest9391.net</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Georgia', serif;
+      background: #f5f0e8;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .container {
+      display: flex;
+      gap: 32px;
+      width: 100%;
+      max-width: 860px;
+      align-items: flex-start;
+    }
+
+    .login-card {
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 40px;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .bank-name {
+      font-size: 11px;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: #999;
+      margin-bottom: 8px;
+    }
+
+    h1 {
+      font-size: 26px;
+      color: #1a1a1a;
+      font-weight: normal;
+      margin-bottom: 6px;
+    }
+
+    .subtitle {
+      font-size: 13px;
+      color: #999;
+      margin-bottom: 32px;
+    }
+
+    .domain-tag {
+      display: inline-block;
+      background: #fff3cd;
+      border: 1px solid #ffc107;
+      color: #856404;
+      font-family: 'Courier New', monospace;
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 3px;
+      margin-bottom: 24px;
+    }
+
+    label {
+      display: block;
+      font-size: 11px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: #666;
+      margin-bottom: 6px;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #ddd;
+      border-radius: 3px;
+      font-family: 'Georgia', serif;
+      font-size: 14px;
+      color: #1a1a1a;
+      margin-bottom: 18px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input:focus { border-color: #1a1a1a; }
+
+    .btn-login {
+      width: 100%;
+      background: #1a1a1a;
+      color: #fff;
+      border: none;
+      padding: 12px;
+      font-family: 'Georgia', serif;
+      font-size: 14px;
+      letter-spacing: 1px;
+      cursor: pointer;
+      border-radius: 3px;
+      transition: background 0.2s;
+    }
+
+    .btn-login:hover { background: #333; }
+
+    /* Debug panel */
+    .debug-panel {
+      background: #0a0a0a;
+      border-radius: 4px;
+      padding: 20px;
+      width: 280px;
+      flex-shrink: 0;
+      font-family: 'Courier New', monospace;
+    }
+
+    .debug-title {
+      font-size: 10px;
+      letter-spacing: 3px;
+      color: #444;
+      margin-bottom: 16px;
+      text-transform: uppercase;
+    }
+
+    .debug-row {
+      margin-bottom: 12px;
+    }
+
+    .debug-label {
+      font-size: 9px;
+      letter-spacing: 2px;
+      color: #444;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+    }
+
+    .debug-value {
+      font-size: 11px;
+      color: #00ff88;
+      word-break: break-all;
+    }
+
+    .debug-value.waiting { color: #ffaa00; }
+    .debug-value.error { color: #ff4466; }
+
+    .iframe-wrapper {
+      margin-top: 16px;
+      border: 1px solid #1a1a1a;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .iframe-label {
+      background: #111;
+      font-size: 9px;
+      letter-spacing: 2px;
+      color: #333;
+      padding: 4px 8px;
+      text-transform: uppercase;
+    }
+
+    iframe {
+      width: 100%;
+      height: 220px;
+      border: none;
+      display: block;
+      background: #0a0a0a;
+    }
+
+    .permission-note {
+      margin-top: 8px;
+      font-size: 9px;
+      color: #333;
+      font-family: 'Courier New', monospace;
+      letter-spacing: 1px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <!-- Login Form -->
+    <div class="login-card">
+      <div class="bank-name">SonTest Bank</div>
+      <h1>Sign in</h1>
+      <p class="subtitle">Enter your credentials to continue</p>
+      <div class="domain-tag">● login.sontest9391.net</div>
+
+      <label>Username</label>
+      <input type="text" placeholder="your username" id="username" />
+
+      <label>Password</label>
+      <input type="password" placeholder="••••••••" id="password" />
+
+      <button class="btn-login" onclick="doLogin()">Continue</button>
+    </div>
+
+    <!-- Debug Panel -->
+    <div class="debug-panel">
+      <div class="debug-title">// geo debug</div>
+
+      <div class="debug-row">
+        <div class="debug-label">Current Domain</div>
+        <div class="debug-value" id="currentDomain">login.sontest9391.net</div>
+      </div>
+
+      <div class="debug-row">
+        <div class="debug-label">Iframe Domain</div>
+        <div class="debug-value">geoloc.sontest9391.net</div>
+      </div>
+
+      <div class="debug-row">
+        <div class="debug-label">Geo Status</div>
+        <div class="debug-value waiting" id="geoStatus">waiting for iframe...</div>
+      </div>
+
+      <div class="debug-row">
+        <div class="debug-label">Latitude</div>
+        <div class="debug-value waiting" id="geoLat">—</div>
+      </div>
+
+      <div class="debug-row">
+        <div class="debug-label">Longitude</div>
+        <div class="debug-value waiting" id="geoLong">—</div>
+      </div>
+
+      <div class="debug-row">
+        <div class="debug-label">postMessage received</div>
+        <div class="debug-value waiting" id="msgStatus">no</div>
+      </div>
+
+      <!-- Hidden iframe -->
+      <div class="iframe-wrapper">
+        <div class="iframe-label">// iframe: geoloc.sontest9391.net</div>
+        <iframe
+          id="geoFrame"
+          src="https://geoloc.sontest9391.net"
+          allow="geolocation"
+        ></iframe>
+      </div>
+
+      <div class="permission-note">
+        ↑ Chrome permission context:<br/>
+        top: login.sontest9391.net<br/>
+        embedded: geoloc.sontest9391.net
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let capturedGeo = null;
+
+    // Listen for postMessage from geoloc iframe
+    window.addEventListener('message', (event) => {
+      // In production, validate event.origin strictly
+      // e.g. if (event.origin !== 'https://geoloc.sontest9391.net') return;
+
+      const data = event.data;
+
+      if (data.type === 'GEO_CAPTURED') {
+        capturedGeo = { geoLat: data.geoLat, geoLong: data.geoLong };
+
+        document.getElementById('geoStatus').textContent = 'captured ✓';
+        document.getElementById('geoStatus').className = 'debug-value';
+        document.getElementById('geoLat').textContent = data.geoLat;
+        document.getElementById('geoLat').className = 'debug-value';
+        document.getElementById('geoLong').textContent = data.geoLong;
+        document.getElementById('geoLong').className = 'debug-value';
+        document.getElementById('msgStatus').textContent = 'yes ✓';
+        document.getElementById('msgStatus').className = 'debug-value';
+      }
+
+      if (data.type === 'GEO_DENIED') {
+        document.getElementById('geoStatus').textContent = `denied: ${data.reason}`;
+        document.getElementById('geoStatus').className = 'debug-value error';
+        document.getElementById('msgStatus').textContent = 'yes (denied)';
+        document.getElementById('msgStatus').className = 'debug-value error';
+      }
+    });
+
+    function doLogin() {
+      const username = document.getElementById('username').value || 'testuser';
+      // Simulate redirect to app with geo in query param (for testing only)
+      const params = new URLSearchParams({
+        user: username,
+        geoLat: capturedGeo?.geoLat || 'denied',
+        geoLong: capturedGeo?.geoLong || 'denied'
+      });
+      window.location.href = `https://app.sontest9391.net?${params.toString()}`;
+    }
+  </script>
+</body>
+</html>
