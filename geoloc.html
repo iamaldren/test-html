@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>GeoLoc Service | geoloc.sontest9391.net</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Courier New', monospace;
+      background: #0a0a0a;
+      color: #00ff88;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 16px;
+    }
+
+    .badge {
+      font-size: 10px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: #444;
+      margin-bottom: 12px;
+    }
+
+    .domain {
+      font-size: 13px;
+      color: #00ff88;
+      opacity: 0.6;
+      margin-bottom: 24px;
+      letter-spacing: 1px;
+    }
+
+    .status-box {
+      border: 1px solid #1a1a1a;
+      background: #111;
+      border-radius: 8px;
+      padding: 20px 24px;
+      width: 100%;
+      max-width: 360px;
+      text-align: center;
+    }
+
+    .status-label {
+      font-size: 10px;
+      letter-spacing: 2px;
+      color: #444;
+      margin-bottom: 8px;
+    }
+
+    .status-value {
+      font-size: 13px;
+      color: #00ff88;
+      min-height: 20px;
+      word-break: break-all;
+    }
+
+    .status-value.error { color: #ff4466; }
+    .status-value.waiting { color: #ffaa00; }
+
+    .divider {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      margin: 14px 0;
+    }
+
+    .btn {
+      margin-top: 20px;
+      background: #00ff88;
+      color: #0a0a0a;
+      border: none;
+      padding: 10px 24px;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: opacity 0.2s;
+    }
+
+    .btn:hover { opacity: 0.8; }
+    .btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+    .log {
+      margin-top: 16px;
+      width: 100%;
+      max-width: 360px;
+      font-size: 10px;
+      color: #333;
+      text-align: left;
+      max-height: 80px;
+      overflow-y: auto;
+    }
+
+    .log-entry { margin-bottom: 4px; }
+    .log-entry.success { color: #00ff8866; }
+    .log-entry.error { color: #ff446666; }
+    .log-entry.info { color: #44aaff66; }
+  </style>
+</head>
+<body>
+
+  <div class="badge">● geolocation service</div>
+  <div class="domain">geoloc.sontest9391.net</div>
+
+  <div class="status-box">
+    <div class="status-label">LATITUDE</div>
+    <div class="status-value waiting" id="lat">waiting...</div>
+    <hr class="divider"/>
+    <div class="status-label">LONGITUDE</div>
+    <div class="status-value waiting" id="lng">waiting...</div>
+    <hr class="divider"/>
+    <div class="status-label">STATUS</div>
+    <div class="status-value waiting" id="status">idle</div>
+    <hr class="divider"/>
+    <div class="status-label">SENT TO PARENT</div>
+    <div class="status-value waiting" id="sent">not sent</div>
+  </div>
+
+  <button class="btn" id="captureBtn" onclick="captureGeo()">Request Location</button>
+
+  <div class="log" id="log"></div>
+
+  <script>
+    function addLog(msg, type = 'info') {
+      const log = document.getElementById('log');
+      const entry = document.createElement('div');
+      entry.className = `log-entry ${type}`;
+      entry.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+      log.prepend(entry);
+    }
+
+    function setStatus(msg, type = 'waiting') {
+      const el = document.getElementById('status');
+      el.textContent = msg;
+      el.className = `status-value ${type}`;
+    }
+
+    function captureGeo() {
+      const btn = document.getElementById('captureBtn');
+      btn.disabled = true;
+      setStatus('requesting...', 'waiting');
+      addLog('navigator.geolocation.getCurrentPosition() called', 'info');
+
+      if (!navigator.geolocation) {
+        setStatus('not supported', 'error');
+        addLog('Geolocation API not available', 'error');
+        btn.disabled = false;
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const lat = pos.coords.latitude;
+          const lng = pos.coords.longitude;
+
+          document.getElementById('lat').textContent = lat;
+          document.getElementById('lat').className = 'status-value';
+          document.getElementById('lng').textContent = lng;
+          document.getElementById('lng').className = 'status-value';
+          setStatus('captured ✓', '');
+
+          addLog(`Got: ${lat}, ${lng}`, 'success');
+
+          // Send to parent via postMessage
+          const payload = { type: 'GEO_CAPTURED', geoLat: lat, geoLong: lng };
+
+          if (window.parent !== window) {
+            window.parent.postMessage(payload, '*');
+            document.getElementById('sent').textContent = 'sent via postMessage ✓';
+            document.getElementById('sent').className = 'status-value';
+            addLog('postMessage sent to parent', 'success');
+          } else {
+            document.getElementById('sent').textContent = 'no parent (standalone)';
+            document.getElementById('sent').className = 'status-value waiting';
+            addLog('Running standalone — no parent to notify', 'info');
+          }
+
+          btn.disabled = false;
+        },
+        (err) => {
+          const messages = {
+            1: 'PERMISSION_DENIED',
+            2: 'POSITION_UNAVAILABLE',
+            3: 'TIMEOUT'
+          };
+          const msg = messages[err.code] || 'UNKNOWN_ERROR';
+          setStatus(msg, 'error');
+          addLog(`Error: ${msg}`, 'error');
+
+          // Notify parent of denial — useful for FDS
+          if (window.parent !== window) {
+            window.parent.postMessage({ type: 'GEO_DENIED', reason: msg }, '*');
+            addLog('GEO_DENIED sent to parent', 'error');
+          }
+
+          btn.disabled = false;
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+      );
+    }
+
+    // Auto-trigger when loaded inside an iframe
+    window.addEventListener('load', () => {
+      if (window.parent !== window) {
+        addLog('Loaded inside iframe — auto-triggering geo capture', 'info');
+        captureGeo();
+      } else {
+        addLog('Loaded standalone — press button to test', 'info');
+      }
+    });
+  </script>
+</body>
+</html>
