@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>App | app.sontest9391.net</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Georgia', serif;
+      background: #f5f0e8;
+      min-height: 100vh;
+      padding: 32px 16px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 32px;
+      max-width: 860px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .bank-name {
+      font-size: 11px;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: #999;
+    }
+
+    .domain-tag {
+      display: inline-block;
+      background: #d4edda;
+      border: 1px solid #28a745;
+      color: #155724;
+      font-family: 'Courier New', monospace;
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 3px;
+    }
+
+    .main {
+      max-width: 860px;
+      margin: 0 auto;
+      display: flex;
+      gap: 32px;
+      align-items: flex-start;
+    }
+
+    .content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    h1 {
+      font-size: 26px;
+      color: #1a1a1a;
+      font-weight: normal;
+      margin-bottom: 6px;
+    }
+
+    .subtitle {
+      font-size: 13px;
+      color: #999;
+      margin-bottom: 32px;
+    }
+
+    .card {
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 24px;
+      margin-bottom: 16px;
+    }
+
+    .card-title {
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #999;
+      margin-bottom: 16px;
+    }
+
+    .from-login {
+      background: #fff9e6;
+      border: 1px solid #ffc107;
+      border-radius: 4px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .from-login-title {
+      font-size: 10px;
+      letter-spacing: 2px;
+      color: #856404;
+      margin-bottom: 10px;
+      font-family: 'Courier New', monospace;
+      text-transform: uppercase;
+    }
+
+    .param-row {
+      display: flex;
+      justify-content: space-between;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+
+    .param-key { color: #666; }
+    .param-val { color: #1a1a1a; font-weight: bold; }
+
+    /* Debug panel */
+    .debug-panel {
+      background: #0a0a0a;
+      border-radius: 4px;
+      padding: 20px;
+      width: 280px;
+      flex-shrink: 0;
+      font-family: 'Courier New', monospace;
+    }
+
+    .debug-title {
+      font-size: 10px;
+      letter-spacing: 3px;
+      color: #444;
+      margin-bottom: 16px;
+      text-transform: uppercase;
+    }
+
+    .debug-row { margin-bottom: 12px; }
+
+    .debug-label {
+      font-size: 9px;
+      letter-spacing: 2px;
+      color: #444;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+    }
+
+    .debug-value {
+      font-size: 11px;
+      color: #00ff88;
+      word-break: break-all;
+    }
+
+    .debug-value.waiting { color: #ffaa00; }
+    .debug-value.error { color: #ff4466; }
+
+    .iframe-wrapper {
+      margin-top: 16px;
+      border: 1px solid #1a1a1a;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .iframe-label {
+      background: #111;
+      font-size: 9px;
+      letter-spacing: 2px;
+      color: #333;
+      padding: 4px 8px;
+      text-transform: uppercase;
+    }
+
+    iframe {
+      width: 100%;
+      height: 220px;
+      border: none;
+      display: block;
+      background: #0a0a0a;
+    }
+
+    .permission-note {
+      margin-top: 8px;
+      font-size: 9px;
+      color: #333;
+      font-family: 'Courier New', monospace;
+      letter-spacing: 1px;
+    }
+
+    .verdict-box {
+      margin-top: 16px;
+      padding: 12px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-family: 'Courier New', monospace;
+      display: none;
+    }
+
+    .verdict-box.one-prompt {
+      background: #0a1f0a;
+      border: 1px solid #00ff88;
+      color: #00ff88;
+    }
+
+    .verdict-box.two-prompts {
+      background: #1f0a0a;
+      border: 1px solid #ff4466;
+      color: #ff4466;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="bank-name">SonTest Bank</div>
+    <div class="domain-tag">● app.sontest9391.net</div>
+  </div>
+
+  <div class="main">
+    <!-- Main Content -->
+    <div class="content">
+      <h1>Welcome back</h1>
+      <p class="subtitle">You are now logged in to the app domain</p>
+
+      <!-- Geo from login page (passed via URL param) -->
+      <div class="from-login" id="fromLoginBox">
+        <div class="from-login-title">// geo received from login.sontest9391.net (via redirect)</div>
+        <div class="param-row">
+          <span class="param-key">geoLat</span>
+          <span class="param-val" id="loginLat">—</span>
+        </div>
+        <div class="param-row">
+          <span class="param-key">geoLong</span>
+          <span class="param-val" id="loginLong">—</span>
+        </div>
+        <div class="param-row">
+          <span class="param-key">user</span>
+          <span class="param-val" id="loginUser">—</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Test Instructions</div>
+        <ol style="font-size: 13px; color: #555; line-height: 1.8; padding-left: 18px;">
+          <li>Start at <code style="background:#f0f0f0;padding:1px 4px;border-radius:2px;">login.sontest9391.net</code></li>
+          <li>Allow location when prompted by the iframe</li>
+          <li>Click Continue — you'll be redirected here</li>
+          <li>Observe: does the iframe here prompt <strong>again</strong>?</li>
+          <li>Check the debug panel on the right →</li>
+        </ol>
+      </div>
+
+      <div class="card">
+        <div class="card-title">What We're Validating</div>
+        <p style="font-size: 13px; color: #555; line-height: 1.7;">
+          Chrome stores geolocation permissions as a pair of
+          <strong>top-level origin + iframe origin</strong>.
+          Even though both pages embed the same
+          <code style="background:#f0f0f0;padding:1px 4px;border-radius:2px;">geoloc.sontest9391.net</code> iframe,
+          Chrome may treat them as separate permission contexts — resulting in a second prompt on this page.
+        </p>
+      </div>
+    </div>
+
+    <!-- Debug Panel -->
+    <div class="debug-panel">
+      <div class="debug-title">// geo debug</div>
+
+      <div class="debug-row">
+        <div class="debug-label">Current Domain</div>
+        <div class="debug-value">app.sontest9391.net</div>
+      </div>
+
+      <div class="debug-row">
+        <div class="debug-label">Iframe Domain</div>
+        <div class="debug-value">geoloc.sontest9391.net</div>
+      </div>
+
+      <div class="debug-row">
+        <div class="debug-label">Geo from Login Page</div>
+        <div class="debug-value waiting" id="geoFromLogin">checking params...</div>
+      </div>
+
+      <div class="debug-row">
+        <div class="debug-label">Geo from THIS iframe</div>
+        <div class="debug-value waiting" id="geoStatus">waiting...</div>
+      </div>
+
+      <div class="debug-row">
+        <div class="debug-label">Latitude (iframe)</div>
+        <div class="debug-value waiting" id="geoLat">—</div>
+      </div>
+
+      <div class="debug-row">
+        <div class="debug-label">Longitude (iframe)</div>
+        <div class="debug-value waiting" id="geoLong">—</div>
+      </div>
+
+      <div class="debug-row">
+        <div class="debug-label">Prompted Again?</div>
+        <div class="debug-value waiting" id="promptedAgain">observing...</div>
+      </div>
+
+      <!-- Hidden iframe — same as login page -->
+      <div class="iframe-wrapper">
+        <div class="iframe-label">// iframe: geoloc.sontest9391.net</div>
+        <iframe
+          id="geoFrame"
+          src="https://geoloc.sontest9391.net"
+          allow="geolocation"
+        ></iframe>
+      </div>
+
+      <div class="permission-note">
+        ↑ Chrome permission context:<br/>
+        top: app.sontest9391.net<br/>
+        embedded: geoloc.sontest9391.net
+      </div>
+
+      <!-- Verdict -->
+      <div class="verdict-box" id="verdictBox">
+        <span id="verdictText"></span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Read geo passed from login page via URL params
+    const params = new URLSearchParams(window.location.search);
+    const loginLat = params.get('geoLat');
+    const loginLong = params.get('geoLong');
+    const loginUser = params.get('user');
+
+    if (loginLat) {
+      document.getElementById('loginLat').textContent = loginLat;
+      document.getElementById('loginLong').textContent = loginLong;
+      document.getElementById('loginUser').textContent = loginUser || '—';
+      document.getElementById('geoFromLogin').textContent =
+        loginLat === 'denied' ? 'denied on login page' : `${loginLat}, ${loginLong}`;
+      document.getElementById('geoFromLogin').className =
+        loginLat === 'denied' ? 'debug-value error' : 'debug-value';
+    } else {
+      document.getElementById('geoFromLogin').textContent = 'no params (direct load)';
+      document.getElementById('geoFromLogin').className = 'debug-value waiting';
+    }
+
+    let iframeGeoReceived = false;
+
+    // Listen for postMessage from geoloc iframe
+    window.addEventListener('message', (event) => {
+      const data = event.data;
+
+      if (data.type === 'GEO_CAPTURED') {
+        iframeGeoReceived = true;
+        document.getElementById('geoStatus').textContent = 'captured ✓';
+        document.getElementById('geoStatus').className = 'debug-value';
+        document.getElementById('geoLat').textContent = data.geoLat;
+        document.getElementById('geoLat').className = 'debug-value';
+        document.getElementById('geoLong').textContent = data.geoLong;
+        document.getElementById('geoLong').className = 'debug-value';
+
+        // Determine if Chrome prompted again
+        // If login geo matches app geo, likely no second prompt
+        // User observes visually whether Chrome showed a prompt
+        document.getElementById('promptedAgain').textContent =
+          'check browser — did it prompt? ↑';
+        document.getElementById('promptedAgain').className = 'debug-value waiting';
+
+        showVerdict(false);
+      }
+
+      if (data.type === 'GEO_DENIED') {
+        document.getElementById('geoStatus').textContent = `denied: ${data.reason}`;
+        document.getElementById('geoStatus').className = 'debug-value error';
+        document.getElementById('promptedAgain').textContent = 'denied here too';
+        document.getElementById('promptedAgain').className = 'debug-value error';
+        showVerdict(true);
+      }
+    });
+
+    function showVerdict(twoPrompts) {
+      const box = document.getElementById('verdictBox');
+      const text = document.getElementById('verdictText');
+      box.style.display = 'block';
+
+      if (twoPrompts) {
+        box.className = 'verdict-box two-prompts';
+        text.textContent = '✗ Chrome prompted again — two permission contexts confirmed';
+      } else {
+        box.className = 'verdict-box one-prompt';
+        text.textContent = '✓ No second prompt — permission reused (verify visually)';
+      }
+    }
+  </script>
+</body>
+</html>
